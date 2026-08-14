@@ -1,2 +1,2 @@
 # SmartPantry
-Archivo inicial README
+Archivo inicial de README
