@@ -1,6 +1,4 @@
 ## SmartPantry
-Archivo inicial de README
-# <SmartPantry>
 
 Repositorio del Trabajo Práctico Integrador de Desarrollo de Software 2026.
 
@@ -9,4 +7,5 @@ Repositorio del Trabajo Práctico Integrador de Desarrollo de Software 2026.
 - Constanzo De Zan - constanzodz
 - Facundo Gentile - Fakuun
 
-
+## Cómo ejecutar
+Pendiente de TP 03.
