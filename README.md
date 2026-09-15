@@ -31,3 +31,20 @@ The solution comes with a default configuration that works out of the box. Howev
 
 * Run `abp install-libs` command on your solution folder to install client-side package dependencies. This step is automatically done when you create a new solution, if you didn't especially disabled it. However, you should run it yourself if you have first cloned this solution from your source control, or added a new client-side package dependency to your solution.
 * Run `SmartPantry.DbMigrator` to create the initial database. This step is also automatically done when you create a new solution, if you didn't especially disabled it. This should be done in the first run. It is also needed if a new database migration is added to the solution later.
+
+## Para correr, usar:
+
+dotnet run --project .\src\SmartPantry.DbMigrator 
+dotnet run --project .\src\SmartPantry.HttpApi.Host 
+Push-Location .\angular 
+yarn start 
+
+* En caso de no dejarte, ejecutar:
+
+cd ./src/SmartPantry.DbMigrator
+dotnet run
+cd ./src/SmartPantry.HttpApi.Host
+dotnet run
+Push-Location .\angular
+yarn install
+yarn start
