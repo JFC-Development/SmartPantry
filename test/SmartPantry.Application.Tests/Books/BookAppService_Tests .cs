@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Shouldly;
+using SmartPantry.Authors;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Modularity;
 using Volo.Abp.Validation;
@@ -13,10 +14,12 @@ public abstract class BookAppService_Tests<TStartupModule> : SmartPantryApplicat
     where TStartupModule : IAbpModule
 {
     private readonly IBookAppService _bookAppService;
+    private readonly IAuthorAppService _authorAppService;
 
     protected BookAppService_Tests()
     {
         _bookAppService = GetRequiredService<IBookAppService>();
+        _authorAppService = GetRequiredService<IAuthorAppService>();
     }
 
     [Fact]
@@ -32,14 +35,24 @@ public abstract class BookAppService_Tests<TStartupModule> : SmartPantryApplicat
         result.Items.ShouldContain(b => b.Name == "1984");
     }
 
-    [Fact]
+        [Fact]
     public async Task Should_Create_A_Valid_Book()
     {
+        //Arrange
+        var author = await _authorAppService.CreateAsync(
+            new CreateUpdateAuthorDto
+            {
+                Name = "Test Author",
+                BirthDate = new DateTime(1970, 1, 1)
+            }
+        );
+
         //Act
         var result = await _bookAppService.CreateAsync(
             new CreateUpdateBookDto
             {
                 Name = "New test book 42",
+                AuthorId = author.Id,
                 Price = 10,
                 PublishDate = DateTime.Now,
                 Type = BookType.ScienceFiction

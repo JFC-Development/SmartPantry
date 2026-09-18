@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Volo.Abp;
 using Volo.Abp.Data;
 using Volo.Abp.EntityFrameworkCore;
-using Volo.Abp.EntityFrameworkCore.Sqlite;
+using Volo.Abp.EntityFrameworkCore.SqlServer;
 using Volo.Abp.FeatureManagement;
 using Volo.Abp.Modularity;
 using Volo.Abp.PermissionManagement;
@@ -14,16 +14,11 @@ namespace SmartPantry.EntityFrameworkCore;
 [DependsOn(
     typeof(SmartPantryApplicationTestModule),
     typeof(SmartPantryEntityFrameworkCoreModule),
-    typeof(AbpEntityFrameworkCoreSqliteModule)
+    typeof(AbpEntityFrameworkCoreSqlServerModule)
 )]
 public class SmartPantryEntityFrameworkCoreTestModule : AbpModule
 {
-    private AbpUnitTestSqliteDatabase? _database;
-
-    public override void PreConfigureServices(ServiceConfigurationContext context)
-    {
-        PreConfigure<AbpSqliteOptions>(x => x.BusyTimeout = null);
-    }
+    private const string TestConnectionString = "Server=.\\SQLEXPRESS;Database=SmartPantry_Test;Trusted_Connection=True;TrustServerCertificate=true";
 
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
@@ -39,32 +34,39 @@ public class SmartPantryEntityFrameworkCoreTestModule : AbpModule
         });
         context.Services.AddAlwaysDisableUnitOfWorkTransaction();
 
-        ConfigureInMemorySqlite(context.Services);
-
+        ConfigureSqlServer(context.Services);
     }
 
-    private void ConfigureInMemorySqlite(IServiceCollection services)
+    private void ConfigureSqlServer(IServiceCollection services)
     {
-        _database = new AbpUnitTestSqliteDatabase();
-        _database.CreateTables(
-            new SmartPantryDbContext(new DbContextOptionsBuilder<SmartPantryDbContext>().UseSqlite(_database.ConnectionString).Options));
+        var dbContextOptions = new DbContextOptionsBuilder<SmartPantryDbContext>()
+            .UseSqlServer(TestConnectionString)
+            .Options;
+
+        using (var context = new SmartPantryDbContext(dbContextOptions))
+        {
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
+        }
 
         services.Configure<AbpDbConnectionOptions>(options =>
         {
-            options.ConnectionStrings.Default = _database.ConnectionString;
+            options.ConnectionStrings.Default = TestConnectionString;
         });
 
         services.Configure<AbpDbContextOptions>(options =>
         {
             options.Configure(context =>
             {
-                context.UseSqlite();
+                context.UseSqlServer();
             });
         });
     }
 
     public override void OnApplicationShutdown(ApplicationShutdownContext context)
     {
-        _database?.Dispose();
+        using var dbContext = new SmartPantryDbContext(
+            new DbContextOptionsBuilder<SmartPantryDbContext>().UseSqlServer(TestConnectionString).Options);
+        dbContext.Database.EnsureDeleted();
     }
 }
