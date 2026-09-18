@@ -8,6 +8,7 @@ using Volo.Abp.FeatureManagement;
 using Volo.Abp.Modularity;
 using Volo.Abp.PermissionManagement;
 using Volo.Abp.Uow;
+using System;
 
 namespace SmartPantry.EntityFrameworkCore;
 
@@ -18,7 +19,9 @@ namespace SmartPantry.EntityFrameworkCore;
 )]
 public class SmartPantryEntityFrameworkCoreTestModule : AbpModule
 {
-    private const string TestConnectionString = "Server=.\\SQLEXPRESS;Database=SmartPantry_Test;Trusted_Connection=True;TrustServerCertificate=true";
+    private static readonly string TestConnectionString =
+    Environment.GetEnvironmentVariable("TEST_CONNECTION_STRING")
+    ?? "Server=.\\SQLEXPRESS;Database=SmartPantry_Test;Trusted_Connection=True;TrustServerCertificate=true";
 
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
