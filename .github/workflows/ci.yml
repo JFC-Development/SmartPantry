@@ -1,36 +1,49 @@
-name: Verificación inicial
-on:
-  pull_request:
-    branches: [main, stg, prod]
-  push:
-    branches: [main]
-jobs:
-  verify:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Verificar archivos requeridos
-        shell: bash
-        run: |
-          required_files=(
-            README.md
-            CONTRIBUTING.md
-            CONFIGURACION_INICIAL.md
-            .gitignore
-            .github/CODEOWNERS
-            .github/PULL_REQUEST_TEMPLATE.md
-            .github/ISSUE_TEMPLATE/feature.yml
-            .github/workflows/ci.yml
-          )
-          for file in "${required_files[@]}"; do
-            test -f "$file" || { echo "::error file=$file::Falta el archivo requerido"; exit 1; }
-          done
-      - name: Verificar marcadores obligatorios
-        shell: bash
-        run: |
-          if grep -En '<(organizacion|repositorio|Nombre del proyecto|Nombre y usuario GitHub)>' README.md CONTRIBUTING.md .github/CODEOWNERS; then
-            echo "::error::Quedan marcadores obligatorios sin reemplazar"
-            exit 1
-          fi
-      - name: Alcance de TP02
-        run: echo "La compilación y las pruebas .NET se incorporan en TP03."
+name: CI 
+  
+on: 
+  pull_request: 
+  push: 
+    branches: [main, stg, prod] 
+  
+jobs: 
+  backend: 
+    runs-on: ubuntu-latest 
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: YourStrong@Passw0rd123
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd="/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P YourStrong@Passw0rd123 -C -Q 'SELECT 1'"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps: 
+      - uses: actions/checkout@v4 
+      - uses: actions/setup-dotnet@v4 
+        with: 
+          dotnet-version: 10.0.x 
+      - run: dotnet restore ./SmartPantry.slnx 
+      - run: dotnet build ./SmartPantry.slnx --configuration Release --no-restore 
+      - run: dotnet test ./SmartPantry.slnx --configuration Release --no-build
+        env:
+          TEST_CONNECTION_STRING: "Server=localhost,1433;Database=SmartPantry_Test;User Id=sa;Password=YourStrong@Passw0rd123;TrustServerCertificate=true" 
+  
+  frontend: 
+    runs-on: ubuntu-latest 
+    defaults: 
+      run: 
+        working-directory: angular 
+    steps: 
+      - uses: actions/checkout@v4 
+      - uses: actions/setup-node@v4
+
+        with:
+          node-version: 24
+      - run: corepack enable  
+      - run: yarn install --frozen-lockfile
+      - run: yarn build
+      - run: yarn test --watch=false 
