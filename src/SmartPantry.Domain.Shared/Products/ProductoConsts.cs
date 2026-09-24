@@ -1,4 +1,4 @@
-namespace SmartPantry;
+namespace SmartPantry.Products;
 
 public static class ProductoConsts
 {
