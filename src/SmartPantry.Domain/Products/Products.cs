@@ -1,6 +1,9 @@
 using System;
 using Volo.Abp;
 using Volo.Abp.Domain.Entities;
+using SmartPantry.Domain.Products;
+
+
 
 namespace SmartPantry.Domain.Products
 {
@@ -31,31 +34,31 @@ namespace SmartPantry.Domain.Products
 
         public void SetCodigoBarras(string codigoBarras)
         {
-            Check.NotNullOrWhiteSpace(codigoBarras, nameof(codigoBarras), ProductoConsts.MaxCodigoBarrasLength);
+            Check.NotNullOrWhiteSpace(codigoBarras, nameof(codigoBarras), ProductConsts.MaxCodigoBarrasLength);
             CodigoBarras = codigoBarras.Trim().Replace(" ", ""); 
         }
 
         public void SetNombre(string nombre)
         {
-            Check.NotNullOrWhiteSpace(nombre, nameof(nombre), ProductoConsts.MaxNombreLength);
+            Check.NotNullOrWhiteSpace(nombre, nameof(nombre), ProductConsts.MaxNombreLength);
             Nombre = nombre.Trim(); 
         }
 
         public void SetMarca(string marca)
         {
-            Check.Length(marca, nameof(marca), ProductoConsts.MaxMarcaLength);
+            Check.Length(marca, nameof(marca), ProductConsts.MaxMarcaLength);
             Marca = marca?.Trim();
         }
 
         public void SetIngredientes(string ingredientes)
         {
-            Check.Length(ingredientes, nameof(ingredientes), ProductoConsts.MaxIngredientesLength);
+            Check.Length(ingredientes, nameof(ingredientes), ProductConsts.MaxIngredientesLength);
             Ingredientes = ingredientes?.Trim();
         }
 
         public void SetAlergenos(string alergenos)
         {
-            Check.Length(alergenos, nameof(alergenos), ProductoConsts.MaxAlergenosLength);
+            Check.Length(alergenos, nameof(alergenos), ProductConsts.MaxAlergenosLength);
             Alergenos = alergenos?.Trim();
         }
     }

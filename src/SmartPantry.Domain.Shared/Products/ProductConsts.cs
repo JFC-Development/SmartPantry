@@ -1,6 +1,6 @@
-namespace SmartPantry.Products;
+namespace SmartPantry.Domain.Products;
 
-public static class ProductoConsts
+public static class ProductConsts
 {
     public const int MaxCodigoBarrasLength = 50;
     public const int MaxNombreLength = 200;

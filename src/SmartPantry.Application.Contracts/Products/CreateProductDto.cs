@@ -1,23 +1,24 @@
 using System.ComponentModel.DataAnnotations;
+using SmartPantry.Domain.Products; 
 
 namespace SmartPantry.Products;
 
 public class CreateProductDto
 {
     [Required]
-    [StringLength(ProductoConsts.MaxCodigoBarrasLength)]
+    [StringLength(ProductConsts.MaxCodigoBarrasLength)]
     public string CodigoBarras { get; set; } = null!;
 
     [Required]
-    [StringLength(ProductoConsts.MaxNombreLength)]
+    [StringLength(ProductConsts.MaxNombreLength)]
     public string Nombre { get; set; } = null!;
 
-    [StringLength(ProductoConsts.MaxMarcaLength)]
+    [StringLength(ProductConsts.MaxMarcaLength)]
     public string? Marca { get; set; }
 
-    [StringLength(ProductoConsts.MaxIngredientesLength)]
+    [StringLength(ProductConsts.MaxIngredientesLength)]
     public string? Ingredientes { get; set; }
 
-    [StringLength(ProductoConsts.MaxAlergenosLength)]
+    [StringLength(ProductConsts.MaxAlergenosLength)]
     public string? Alergenos { get; set; }
 }

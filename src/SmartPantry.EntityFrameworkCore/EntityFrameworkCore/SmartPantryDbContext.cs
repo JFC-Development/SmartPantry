@@ -117,11 +117,11 @@ public class SmartPantryDbContext :
     b.ToTable(SmartPantryConsts.DbTablePrefix + "Products", SmartPantryConsts.DbSchema);
     b.ConfigureByConvention(); // auto configure for the base class props
     
-    b.Property(x => x.CodigoBarras).IsRequired().HasMaxLength(ProductoConsts.MaxCodigoBarrasLength);
-    b.Property(x => x.Nombre).IsRequired().HasMaxLength(ProductoConsts.MaxNombreLength);
-    b.Property(x => x.Marca).HasMaxLength(ProductoConsts.MaxMarcaLength);
-    b.Property(x => x.Ingredientes).HasMaxLength(ProductoConsts.MaxIngredientesLength);
-    b.Property(x => x.Alergenos).HasMaxLength(ProductoConsts.MaxAlergenosLength);
+    b.Property(x => x.CodigoBarras).IsRequired().HasMaxLength(ProductConsts.MaxCodigoBarrasLength);
+    b.Property(x => x.Nombre).IsRequired().HasMaxLength(ProductConsts.MaxNombreLength);
+    b.Property(x => x.Marca).HasMaxLength(ProductConsts.MaxMarcaLength);
+    b.Property(x => x.Ingredientes).HasMaxLength(ProductConsts.MaxIngredientesLength);
+    b.Property(x => x.Alergenos).HasMaxLength(ProductConsts.MaxAlergenosLength);
 });
     }
 }
