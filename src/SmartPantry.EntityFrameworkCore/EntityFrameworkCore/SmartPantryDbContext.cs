@@ -16,6 +16,7 @@ using Volo.Abp.SettingManagement.EntityFrameworkCore;
 using Volo.Abp.OpenIddict.EntityFrameworkCore;
 using Volo.Abp.TenantManagement;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
+using SmartPantry.Domain.Products;
 
 namespace SmartPantry.EntityFrameworkCore;
 
@@ -30,7 +31,7 @@ public class SmartPantryDbContext :
     /* Add DbSet properties for your Aggregate Roots / Entities here. */
 
     public DbSet<Author> Authors { get; set; }
-
+    public DbSet<Product> Products { get; set; }
     public DbSet<Book> Books { get; set; }
 
     #region Entities from the modules
@@ -110,5 +111,17 @@ public class SmartPantryDbContext :
         //    b.ConfigureByConvention(); //auto configure for the base class props
         //    //...
         //});
+
+        builder.Entity<Product>(b =>
+{
+    b.ToTable(SmartPantryConsts.DbTablePrefix + "Products", SmartPantryConsts.DbSchema);
+    b.ConfigureByConvention(); // auto configure for the base class props
+    
+    b.Property(x => x.CodigoBarras).IsRequired().HasMaxLength(ProductConsts.MaxCodigoBarrasLength);
+    b.Property(x => x.Nombre).IsRequired().HasMaxLength(ProductConsts.MaxNombreLength);
+    b.Property(x => x.Marca).HasMaxLength(ProductConsts.MaxMarcaLength);
+    b.Property(x => x.Ingredientes).HasMaxLength(ProductConsts.MaxIngredientesLength);
+    b.Property(x => x.Alergenos).HasMaxLength(ProductConsts.MaxAlergenosLength);
+});
     }
 }
