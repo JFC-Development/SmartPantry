@@ -11,9 +11,9 @@ namespace SmartPantry.Domain.Products
     {
         public string CodigoBarras { get; private set; }
         public string Nombre { get; private set; }
-        public string Marca { get; private set; }
-        public string Ingredientes { get; private set; }
-        public string Alergenos { get; private set; }
+        public string? Marca { get; private set; }
+        public string? Ingredientes { get; private set; }
+        public string? Alergenos { get; private set; }
 
         protected Product() { }
 
