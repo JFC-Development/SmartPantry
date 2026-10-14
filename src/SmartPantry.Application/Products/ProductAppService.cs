@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Volo.Abp.Application.Services;
 using Volo.Abp.Domain.Repositories;
 using SmartPantry.Domain.Products;
+using Volo.Abp.Application.Dtos;
 
 namespace SmartPantry.Products;
 
@@ -13,19 +14,28 @@ namespace SmartPantry.Products;
  * autorización y será revisado cuando se incorpore seguridad/login.
  */
 [AllowAnonymous]
-public class ProductAppService : ApplicationService, IProductAppService
+public class ProductAppService :
+    CrudAppService<
+        Product,                         // entidad
+        ProductDto,                      // DTO de salida
+        Guid,                            // tipo del Id
+        PagedAndSortedResultRequestDto,  // entrada de la lista
+        CreateProductDto,                // entrada de creación
+        UpdateProductDto>,               // entrada de modificación
+    IProductAppService
 {
-    private readonly IRepository<Product, Guid> _repository;
-
     public ProductAppService(IRepository<Product, Guid> repository)
+        : base(repository)
     {
-        _repository = repository;
     }
 
-    public async Task<ProductDto> CreateAsync(CreateProductDto input)
+        // Creación: el servicio base inserta, pero la entidad se construye con el
+    // constructor del agregado para que valide y normalice.
+    
+    protected override Task<Product> MapToEntityAsync(CreateProductDto input)
     {
         var entity = new Product(
-            Guid.NewGuid(),
+            GuidGenerator.Create(),
             input.CodigoBarras,
             input.Nombre,
             input.Marca,
@@ -33,24 +43,27 @@ public class ProductAppService : ApplicationService, IProductAppService
             input.Alergenos
         );
 
-        await _repository.InsertAsync(entity);
-
-        return new ProductDto
-        {
-            Id = entity.Id,
-            CodigoBarras = entity.CodigoBarras,
-            Nombre = entity.Nombre,
-            Marca = entity.Marca,
-            Ingredientes = entity.Ingredientes,
-            Alergenos = entity.Alergenos
-        };
+        return Task.FromResult(entity);
     }
 
-    public async Task<ProductDto> GetAsync(Guid id)
+    // Modificación: se delega en Update(), que valida todo antes de asignar.
+    protected override Task MapToEntityAsync(UpdateProductDto input, Product entity)
     {
-        var entity = await _repository.GetAsync(id);
-        
-        return new ProductDto
+        entity.Update(
+            input.CodigoBarras,
+            input.Nombre,
+            input.Marca,
+            input.Ingredientes,
+            input.Alergenos
+        );
+
+        return Task.CompletedTask;
+    }
+
+    // Salida: entidad -> DTO. Es el único lugar donde se decide qué se expone.
+    protected override Task<ProductDto> MapToGetOutputDtoAsync(Product entity)
+    {
+        return Task.FromResult(new ProductDto
         {
             Id = entity.Id,
             CodigoBarras = entity.CodigoBarras,
@@ -58,6 +71,6 @@ public class ProductAppService : ApplicationService, IProductAppService
             Marca = entity.Marca,
             Ingredientes = entity.Ingredientes,
             Alergenos = entity.Alergenos
-        };
+        });
     }
 }
