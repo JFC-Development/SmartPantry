@@ -11,9 +11,9 @@ namespace SmartPantry.Domain.Products
     {
         public string CodigoBarras { get; private set; }
         public string Nombre { get; private set; }
-        public string Marca { get; private set; }
-        public string Ingredientes { get; private set; }
-        public string Alergenos { get; private set; }
+        public string? Marca { get; private set; }
+        public string? Ingredientes { get; private set; }
+        public string? Alergenos { get; private set; }
 
         protected Product() { }
 
@@ -59,6 +59,28 @@ namespace SmartPantry.Domain.Products
         public void SetAlergenos(string alergenos)
         {
             Check.Length(alergenos, nameof(alergenos), ProductConsts.MaxAlergenosLength);
+            Alergenos = alergenos?.Trim();
+        }
+
+        public void Update(
+            string codigoBarras,
+            string nombre,
+            string marca = null,
+            string ingredientes = null,
+            string alergenos = null)
+        {
+            // 1) Validar todo primero: si algo falla, no se tocó ninguna propiedad
+            Check.NotNullOrWhiteSpace(codigoBarras, nameof(codigoBarras), ProductConsts.MaxCodigoBarrasLength);
+            Check.NotNullOrWhiteSpace(nombre, nameof(nombre), ProductConsts.MaxNombreLength);
+            Check.Length(marca, nameof(marca), ProductConsts.MaxMarcaLength);
+            Check.Length(ingredientes, nameof(ingredientes), ProductConsts.MaxIngredientesLength);
+            Check.Length(alergenos, nameof(alergenos), ProductConsts.MaxAlergenosLength);
+
+            // 2) Recién ahora asignar, normalizando igual que los setters
+            CodigoBarras = codigoBarras.Trim().Replace(" ", "");
+            Nombre = nombre.Trim();
+            Marca = marca?.Trim();
+            Ingredientes = ingredientes?.Trim();
             Alergenos = alergenos?.Trim();
         }
     }
