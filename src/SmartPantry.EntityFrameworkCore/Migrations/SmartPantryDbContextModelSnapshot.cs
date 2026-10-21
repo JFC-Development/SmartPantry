@@ -151,6 +151,7 @@ namespace SmartPantry.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Alergenos")
+                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
@@ -172,10 +173,12 @@ namespace SmartPantry.Migrations
                         .HasColumnName("ExtraProperties");
 
                     b.Property<string>("Ingredientes")
+                        .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("Marca")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
