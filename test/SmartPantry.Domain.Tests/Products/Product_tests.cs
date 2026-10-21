@@ -18,7 +18,10 @@ public class Product_Tests
             "Trigo",
             "Gluten"
         );
-
+        product.CodigoBarras.ShouldBe("123456789");
         product.Nombre.ShouldBe("Fideos");
+        product.Marca.ShouldBe("Lucchetti");
+        product.Ingredientes.ShouldBe("Trigo");
+        product.Alergenos.ShouldBe("Gluten");
     }
 }
