@@ -7,7 +7,7 @@ using Xunit;
 
 namespace SmartPantry.ExternalProducts;
 
-public class ExternalProductAppService_Tests : SmartPantryApplicationTestBase<TStartupModule>
+public class ExternalProductAppService_Tests
 {
     private readonly IExternalProductCatalogClient _catalogClient;
     private readonly IExternalProductAppService _sut;
@@ -81,8 +81,4 @@ public class ExternalProductAppService_Tests : SmartPantryApplicationTestBase<TS
 
         result.Status.ShouldBe(ExternalProductStatus.Unavailable);
     }
-}
-
-public class TStartupModule : AbpModule
-{
 }
