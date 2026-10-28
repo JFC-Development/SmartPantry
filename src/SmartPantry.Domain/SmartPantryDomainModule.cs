@@ -2,7 +2,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using SmartPantry.Localization;
 using SmartPantry.MultiTenancy;
+using SmartPantry.Despensa; 
 using System;
+using Volo.Abp;
 using Volo.Abp.Localization;
 using Volo.Abp.Modularity;
 using Volo.Abp.MultiTenancy;
@@ -18,6 +20,7 @@ using Volo.Abp.Emailing;
 using Volo.Abp.FeatureManagement;
 using Volo.Abp.Identity;
 using Volo.Abp.TenantManagement;
+using Volo.Abp.BackgroundWorkers; 
 
 namespace SmartPantry;
 
@@ -44,10 +47,13 @@ public class SmartPantryDomainModule : AbpModule
             options.IsEnabled = MultiTenancyConsts.IsEnabled;
         });
 
-
-
 #if DEBUG
         context.Services.Replace(ServiceDescriptor.Singleton<IEmailSender, NullEmailSender>());
 #endif
+    }
+
+    public override void OnApplicationInitialization(ApplicationInitializationContext context)
+    {
+        context.AddBackgroundWorkerAsync<VencimientosBackgroundWorker>();
     }
 }

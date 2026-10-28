@@ -17,6 +17,7 @@ using Volo.Abp.OpenIddict.EntityFrameworkCore;
 using Volo.Abp.TenantManagement;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
 using SmartPantry.Domain.Products;
+using SmartPantry.Despensa;
 
 namespace SmartPantry.EntityFrameworkCore;
 
@@ -33,6 +34,8 @@ public class SmartPantryDbContext :
     public DbSet<Author> Authors { get; set; }
     public DbSet<Product> Products { get; set; }
     public DbSet<Book> Books { get; set; }
+    public DbSet<ItemDespensa> ItemDespensas { get; set; }
+    public DbSet<AdvertenciaItemDespensa> AdvertenciasItemDespensa { get; set; }
 
     #region Entities from the modules
 
@@ -123,5 +126,24 @@ public class SmartPantryDbContext :
     b.Property(x => x.Ingredientes).HasMaxLength(ProductConsts.MaxIngredientesLength);
     b.Property(x => x.Alergenos).HasMaxLength(ProductConsts.MaxAlergenosLength);
 });
-    }
+    builder.Entity<ItemDespensa>(b =>
+        {
+            b.ToTable(SmartPantryConsts.DbTablePrefix + "ItemDespensas", SmartPantryConsts.DbSchema);
+            b.ConfigureByConvention();
+        });
+
+        builder.Entity<AdvertenciaItemDespensa>(b =>
+        {
+            b.ToTable(SmartPantryConsts.DbTablePrefix + "AdvertenciasItemDespensa", SmartPantryConsts.DbSchema);
+            b.ConfigureByConvention();
+
+            // Índice único compuesto para garantizar la idempotencia por ítem y tipo de advertencia
+            b.HasIndex(x => new { x.ItemDespensaId, x.TipoAdvertencia }).IsUnique();
+
+            // Relación con el ítem de despensa
+            b.HasOne<ItemDespensa>()
+             .WithMany()
+             .HasForeignKey(x => x.ItemDespensaId)
+             .IsRequired();
+        });}
 }
