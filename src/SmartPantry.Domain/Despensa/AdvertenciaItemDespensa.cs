@@ -22,5 +22,15 @@ namespace SmartPantry.Despensa
             Mensaje = mensaje;
             Activa = activa;
         }
+        public void Actualizar(string mensaje)
+        {
+            Mensaje = mensaje;
+            Activa = true;
+        }
+
+        public void Desactivar()
+        {
+            Activa = false;
+        }
     }
 }

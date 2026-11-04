@@ -43,7 +43,7 @@ public class GestorVencimientosDominioServicio_Tests : SmartPantryEntityFramewor
 
         // Assert
         var advertencias = await _advertenciaRepository.GetListAsync(a => a.ItemDespensaId == itemId);
-        advertencias.ShouldContain(a => a.TipoAdvertencia == "Vencido" && a.Activa);
+        advertencias.ShouldContain(a => a.TipoAdvertencia == GestorVencimientosDominioServicio.TipoVencimiento && a.Activa);
     }
 
     [Fact]
@@ -68,6 +68,6 @@ public class GestorVencimientosDominioServicio_Tests : SmartPantryEntityFramewor
 
         // Assert
         var advertencias = await _advertenciaRepository.GetListAsync(a => a.ItemDespensaId == itemId);
-        advertencias.ShouldContain(a => a.TipoAdvertencia == "ProximoAVencer" && a.Activa);
+        advertencias.ShouldContain(a => a.TipoAdvertencia == GestorVencimientosDominioServicio.TipoVencimiento && a.Activa);
     }
 }
