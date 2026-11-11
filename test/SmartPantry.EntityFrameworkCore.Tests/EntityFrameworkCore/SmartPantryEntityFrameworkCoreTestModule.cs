@@ -21,7 +21,7 @@ public class SmartPantryEntityFrameworkCoreTestModule : AbpModule
 {
     private static readonly string TestConnectionString =
     Environment.GetEnvironmentVariable("TEST_CONNECTION_STRING")
-    ?? "Server=(localdb)\\MSSQLLocalDB;Database=SmartPantry;Trusted_Connection=True;TrustServerCertificate=True";
+    ?? "Server=.\\SQLEXPRESS;Database=SmartPantry_Tests;Trusted_Connection=True;TrustServerCertificate=True";
 
     public override void ConfigureServices(ServiceConfigurationContext context)
     {

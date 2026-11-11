@@ -5,33 +5,40 @@ using Microsoft.Extensions.Logging;
 using Volo.Abp.BackgroundWorkers;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.Threading;
+using Volo.Abp.Uow;
 
 namespace SmartPantry.Despensa
 {
-    public class VencimientosBackgroundWorker : PeriodicBackgroundWorkerBase, ISingletonDependency
+    public class VencimientosBackgroundWorker : AsyncPeriodicBackgroundWorkerBase, ISingletonDependency
+{
+    public VencimientosBackgroundWorker(
+        AbpAsyncTimer timer,
+        IServiceScopeFactory serviceScopeFactory) : base(timer, serviceScopeFactory)
     {
-        private readonly IServiceScopeFactory _serviceScopeFactory;
+        Timer.Period = 60 * 60000;
+    }
 
-        public VencimientosBackgroundWorker(
-            AbpTimer timer,
-            IServiceScopeFactory serviceScopeFactory) : base(timer, serviceScopeFactory)
+        protected override async Task DoWorkAsync(PeriodicBackgroundWorkerContext workerContext)
         {
-            Timer.Period = 60000 * 60; 
-            _serviceScopeFactory = serviceScopeFactory;
-        }
+            Logger.LogInformation("Iniciando verificación de vencimientos de la despensa...");
 
-        protected override void DoWork(PeriodicBackgroundWorkerContext workerContext)
-        {
-            Logger.LogInformation("Iniciando verificación automática de vencimientos de la despensa...");
-
-            AsyncHelper.RunSync(async () =>
+            try
             {
-                using var scope = _serviceScopeFactory.CreateScope();
-                var gestorVencimientos = scope.ServiceProvider.GetRequiredService<GestorVencimientosDominioServicio>();
-                await gestorVencimientos.ProcesarVencimientosAsync();
-            });
+                var uowManager = workerContext.ServiceProvider.GetRequiredService<IUnitOfWorkManager>();
+                var gestor = workerContext.ServiceProvider.GetRequiredService<GestorVencimientosDominioServicio>();
 
-            Logger.LogInformation("Verificación automática de vencimientos finalizada con éxito.");
+                using (var uow = uowManager.Begin(requiresNew: true, isTransactional: true))
+                {
+                    await gestor.ProcesarVencimientosAsync();
+                    await uow.CompleteAsync();
+                }
+
+                Logger.LogInformation("Verificación de vencimientos finalizada.");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Falló la verificación de vencimientos. Se reintentará en la próxima ejecución.");
+            }
         }
     }
 }
