@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using SmartPantry.Localization;
@@ -52,8 +53,9 @@ public class SmartPantryDomainModule : AbpModule
 #endif
     }
 
-    public override void OnApplicationInitialization(ApplicationInitializationContext context)
+      public override async Task OnApplicationInitializationAsync(ApplicationInitializationContext context)
     {
-        context.AddBackgroundWorkerAsync<VencimientosBackgroundWorker>();
+        await base.OnApplicationInitializationAsync(context);
+        await context.AddBackgroundWorkerAsync<VencimientosBackgroundWorker>();
     }
 }

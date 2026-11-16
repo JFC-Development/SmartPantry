@@ -13,7 +13,7 @@ namespace SmartPantry.Products;
  * verificar la operación en Swagger. No representa la política final de 
  * autorización y será revisado cuando se incorpore seguridad/login.
  */
-[AllowAnonymous]
+[Authorize]
 public class ProductAppService :
     CrudAppService<
         Product,                         // entidad
