@@ -1,0 +1,76 @@
+<div class="card">
+  <div class="card-header">
+    <h5 class="card-title mb-0">{{ '::Pantry:Title' | abpLocalization }}</h5>
+  </div>
+  <div class="card-body">
+    @if (isLoading()) {
+      <div class="text-center py-4" role="status">
+        <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+        {{ '::Pantry:Loading' | abpLocalization }}
+      </div>
+    } @else if (hasError()) {
+      <div class="alert alert-danger d-flex flex-wrap align-items-center justify-content-between gap-2" role="alert">
+        <span>{{ '::Pantry:LoadError' | abpLocalization }}</span>
+        <button type="button" class="btn btn-outline-danger btn-sm" (click)="retry()">
+          {{ '::Pantry:Retry' | abpLocalization }}
+        </button>
+      </div>
+    } @else if (isEmpty()) {
+      <p class="text-muted text-center mb-0">{{ '::Pantry:Empty' | abpLocalization }}</p>
+    } @else {
+      <div class="table-responsive">
+        <table class="table table-striped align-middle">
+          <thead>
+            <tr>
+              <th>{{ '::Pantry:Product' | abpLocalization }}</th>
+              <th>{{ '::Pantry:ExpirationDate' | abpLocalization }}</th>
+              <th>{{ '::Pantry:Quantity' | abpLocalization }}</th>
+              <th>{{ '::Pantry:Unit' | abpLocalization }}</th>
+              <th>{{ '::Pantry:Status' | abpLocalization }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of items(); track item.id) {
+              <tr>
+                <td>{{ item.nombreProducto || ('::Pantry:UnknownProduct' | abpLocalization) }}</td>
+                <td>
+                  @if (item.fechaVencimiento) {
+                    {{ item.fechaVencimiento | date: 'shortDate' }}
+                  } @else {
+                    <span class="text-muted fst-italic">{{ '::Pantry:NoExpirationDate' | abpLocalization }}</span>
+                  }
+                </td>
+                <td>
+                  @if (item.cantidad != null) {
+                    {{ item.cantidad }}
+                  } @else {
+                    <span class="text-muted fst-italic">{{ '::Pantry:NoQuantity' | abpLocalization }}</span>
+                  }
+                </td>
+                <td>
+                  @if (item.unidad) {
+                    {{ item.unidad }}
+                  } @else {
+                    <span class="text-muted fst-italic">{{ '::Pantry:NoUnit' | abpLocalization }}</span>
+                  }
+                </td>
+                <td>{{ ('::Pantry:Status:' + item.estado) | abpLocalization }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+        @if (totalCount() > pageSize()) {
+        <ngb-pagination
+          [collectionSize]="totalCount()"
+          [pageSize]="pageSize()"
+          [page]="currentPage"
+          (pageChange)="onPageChange($event)"
+          [maxSize]="5"
+          size="sm"
+        />
+      }
+    }
+  </div>
+</div>
