@@ -130,6 +130,9 @@ public class SmartPantryDbContext :
         {
             b.ToTable(SmartPantryConsts.DbTablePrefix + "ItemDespensas", SmartPantryConsts.DbSchema);
             b.ConfigureByConvention();
+            b.Property(x => x.Estado).IsRequired().HasMaxLength(ItemDespensaConsts.MaxEstadoLength);
+            b.Property(x => x.Unidad).HasMaxLength(ItemDespensaConsts.MaxUnidadLength);
+            b.HasIndex(x => x.PropietarioId);
         });
 
         builder.Entity<AdvertenciaItemDespensa>(b =>

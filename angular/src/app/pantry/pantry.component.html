@@ -1,0 +1,143 @@
+<div class="card">
+  <div class="card-header">
+    <h5 class="card-title mb-0">{{ '::Pantry:Title' | abpLocalization }}</h5>
+  </div>
+  <div class="card-body">
+    @if (isLoading()) {
+      <div class="text-center py-4" role="status">
+        <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+        {{ '::Pantry:Loading' | abpLocalization }}
+      </div>
+    } @else if (hasError()) {
+      <div class="alert alert-danger d-flex flex-wrap align-items-center justify-content-between gap-2" role="alert">
+        <span>{{ '::Pantry:LoadError' | abpLocalization }}</span>
+        <button type="button" class="btn btn-outline-danger btn-sm" (click)="retry()">
+          {{ '::Pantry:Retry' | abpLocalization }}
+        </button>
+      </div>
+    } @else if (isEmpty()) {
+      <p class="text-muted text-center mb-0">{{ '::Pantry:Empty' | abpLocalization }}</p>
+    } @else {
+      <div class="table-responsive">
+        <table class="table table-striped align-middle">
+          <thead>
+            <tr>
+              <th>{{ '::Pantry:Product' | abpLocalization }}</th>
+              <th>{{ '::Pantry:ExpirationDate' | abpLocalization }}</th>
+              <th>{{ '::Pantry:Quantity' | abpLocalization }}</th>
+              <th>{{ '::Pantry:Unit' | abpLocalization }}</th>
+              <th>{{ '::Pantry:Status' | abpLocalization }}</th>
+              <th>{{ '::Pantry:Actions' | abpLocalization }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of items(); track item.id) {
+              <tr>
+                <td>{{ item.nombreProducto || ('::Pantry:UnknownProduct' | abpLocalization) }}</td>
+                <td>
+                  @if (item.fechaVencimiento) {
+                    {{ item.fechaVencimiento | date: 'shortDate' }}
+                  } @else {
+                    <span class="text-muted fst-italic">{{ '::Pantry:NoExpirationDate' | abpLocalization }}</span>
+                  }
+                </td>
+                <td>
+                  @if (item.cantidad != null) {
+                    {{ item.cantidad }}
+                  } @else {
+                    <span class="text-muted fst-italic">{{ '::Pantry:NoQuantity' | abpLocalization }}</span>
+                  }
+                </td>
+                <td>
+                  @if (item.unidad) {
+                    {{ item.unidad }}
+                  } @else {
+                    <span class="text-muted fst-italic">{{ '::Pantry:NoUnit' | abpLocalization }}</span>
+                  }
+                </td>
+                                <td>
+                  <span class="badge" [class.bg-success]="item.estado === 'EnStock'" [class.bg-secondary]="item.estado === 'Consumido'">
+                    {{ ('::Pantry:Status:' + item.estado) | abpLocalization }}
+                  </span>
+                </td>
+                <td class="text-nowrap">
+                  <button type="button" class="btn btn-outline-primary btn-sm me-1" (click)="openEdit(item)">
+                    {{ '::Pantry:Edit' | abpLocalization }}
+                  </button>
+                  @if (item.estado !== 'Consumido') {
+                    <button type="button" class="btn btn-outline-success btn-sm me-1" (click)="markAsConsumed(item)">
+                      {{ '::Pantry:MarkConsumed' | abpLocalization }}
+                    </button>
+                  }
+                  <button type="button" class="btn btn-outline-danger btn-sm" (click)="delete(item)">
+                    {{ '::Pantry:Delete' | abpLocalization }}
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+        @if (totalCount() > pageSize()) {
+        <ngb-pagination
+          [collectionSize]="totalCount()"
+          [pageSize]="pageSize()"
+          [page]="currentPage"
+          (pageChange)="onPageChange($event)"
+          [maxSize]="5"
+          size="sm"
+        />
+      }
+    }
+  </div>
+</div>
+<abp-modal [visible]="isModalOpen()" (visibleChange)="isModalOpen.set($event)">
+  <ng-template #abpHeader>
+    <h3>{{ '::Pantry:Edit' | abpLocalization }}: {{ editing()?.nombreProducto }}</h3>
+  </ng-template>
+
+  <ng-template #abpBody>
+    <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+      @if (saveError()) {
+        <div class="alert alert-danger" role="alert">{{ '::Pantry:SaveError' | abpLocalization }}</div>
+      }
+
+      <div class="mt-2">
+        <label for="pantry-quantity">{{ '::Pantry:Quantity' | abpLocalization }}</label>
+        <input type="number" step="any" id="pantry-quantity" class="form-control" formControlName="cantidad"
+               [class.is-invalid]="form.controls.cantidad.invalid && form.controls.cantidad.touched" />
+        @if (form.controls.cantidad.invalid && form.controls.cantidad.touched) {
+          <div class="invalid-feedback d-block">{{ '::Pantry:QuantityNegative' | abpLocalization }}</div>
+        }
+      </div>
+
+      <div class="mt-2">
+        <label for="pantry-unit">{{ '::Pantry:Unit' | abpLocalization }}</label>
+        <input type="text" id="pantry-unit" class="form-control" formControlName="unidad"
+               [class.is-invalid]="form.controls.unidad.invalid && form.controls.unidad.touched" />
+        @if (form.controls.unidad.invalid && form.controls.unidad.touched) {
+          <div class="invalid-feedback d-block">{{ '::Pantry:UnitTooLong' | abpLocalization }}</div>
+        }
+      </div>
+
+      <div class="mt-2">
+        <label for="pantry-date">{{ '::Pantry:ExpirationDate' | abpLocalization }}</label>
+        <input type="date" id="pantry-date" class="form-control" formControlName="fecha"
+               [class.is-invalid]="form.controls.fecha.invalid && form.controls.fecha.touched" />
+        @if (form.controls.fecha.invalid && form.controls.fecha.touched) {
+          <div class="invalid-feedback d-block">{{ '::Pantry:InvalidDate' | abpLocalization }}</div>
+        }
+      </div>
+    </form>
+  </ng-template>
+
+  <ng-template #abpFooter>
+    <button type="button" class="btn btn-secondary" abpClose>
+      {{ '::Pantry:Cancel' | abpLocalization }}
+    </button>
+    <abp-button iconClass="fa fa-check" [loading]="saving()" [disabled]="saving()" (click)="save()">
+      {{ '::Pantry:Save' | abpLocalization }}
+    </abp-button>
+  </ng-template>
+</abp-modal>
