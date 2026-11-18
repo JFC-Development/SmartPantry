@@ -71,7 +71,9 @@ Un ítem consumido no vuelve a "en stock": solo puede editarse o eliminarse de f
 El listado de despensa es paginado (`getList` recibe `skipCount` y `maxResultCount`), por eso el componente usa `ListService` para administrar la página actual y recargar la lista después de editar, consumir o eliminar.
 
 ### Criterio de fechas
-La fecha de vencimiento se trata como **fecha de calendario local**, sin conversión de zona horaria: al editar se toma solo la parte `yyyy-MM-dd` y se envía como `T00:00:00`. En la lista se muestra con el formato de la configuración regional de la aplicación (`DatePipe`). Este criterio coincide con el que aplica el worker de vencimientos del TP08.
+La fecha de vencimiento se trata como **fecha de calendario local**, sin conversión de zona horaria. En la pantalla, al editar se toma solo la parte `yyyy-MM-dd` y se envía como `T00:00:00`; en la lista se muestra con el formato de la configuración regional de la aplicación (`DatePipe`).
+
+Este criterio **coincide con el del worker de vencimientos del TP08**, que calcula "hoy" con la fecha local del servidor (`DateTime.Now.Date`) y compara solo la parte de día de `FechaVencimiento`, sin considerar la hora. Además, el worker solo avisa sobre ítems en estado `EnStock`, por lo que un ítem consumido deja de generar advertencias.
 
 ### Manejo de errores
 - El listado y la edición usan `skipHandleError`, porque el componente muestra su propio mensaje localizado: el listado ofrece reintentar y la edición conserva lo ingresado si el servidor rechaza los datos.
