@@ -177,7 +177,7 @@ namespace SmartPantry.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal>("Cantidad")
+                    b.Property<decimal?>("Cantidad")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -205,7 +205,8 @@ namespace SmartPantry.Migrations
 
                     b.Property<string>("Estado")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("ExtraProperties")
                         .IsRequired()
@@ -236,10 +237,12 @@ namespace SmartPantry.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Unidad")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PropietarioId");
 
                     b.ToTable("AppItemDespensas", (string)null);
                 });

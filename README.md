@@ -48,3 +48,56 @@ dotnet run
 Push-Location .\angular
 yarn install
 yarn start
+
+## Pantalla "Mi despensa" (TP10)
+
+Pantalla Angular (RF-11, con RF-09 para datos faltantes) que lista los ítems de despensa del usuario logueado y permite editarlos, marcarlos como consumidos y eliminarlos.
+
+- **Ruta del componente:** `angular/src/app/pantry`
+- **Acceso a la API:** proxies generados por ABP (`angular/src/app/proxy/despensa`), no hay llamadas HTTP escritas a mano.
+- **Edición:** formulario reactivo con validación de cantidad (no negativa), unidad (máx. 20 caracteres) y fecha de vencimiento.
+- **Eliminar:** pide confirmación antes de llamar al servidor.
+- **Localización:** textos en español e inglés mediante claves `::Pantry:...`.
+- **Seguridad:** el BackEnd solo permite operar sobre ítems propios; un ítem ajeno responde 404.
+
+## Decisiones del TP10
+
+### Ítems consumidos
+Los ítems consumidos **se conservan como historial** y no se eliminan automáticamente (regla de negocio 6). Al marcarlos, la lista los muestra con una etiqueta que los diferencia de los que están en stock. Se decidió conservarlos, y no eliminarlos, para que el usuario pueda consultar después qué productos ya consumió y usar ese dato como base al hacer un pedido, en lugar de depender de la memoria.
+
+Un ítem consumido no vuelve a "en stock": solo puede editarse o eliminarse de forma explícita (con confirmación previa).
+
+### Uso de ListService
+El listado de despensa es paginado (`getList` recibe `skipCount` y `maxResultCount`), por eso el componente usa `ListService` para administrar la página actual y recargar la lista después de editar, consumir o eliminar.
+
+### Criterio de fechas
+La fecha de vencimiento se trata como **fecha de calendario local**, sin conversión de zona horaria. En la pantalla, al editar se toma solo la parte `yyyy-MM-dd` y se envía como `T00:00:00`; en la lista se muestra con el formato de la configuración regional de la aplicación (`DatePipe`).
+
+Este criterio **coincide con el del worker de vencimientos del TP08**, que calcula "hoy" con la fecha local del servidor (`DateTime.Now.Date`) y compara solo la parte de día de `FechaVencimiento`, sin considerar la hora. Además, el worker solo avisa sobre ítems en estado `EnStock`, por lo que un ítem consumido deja de generar advertencias.
+
+### Manejo de errores
+- El listado y la edición usan `skipHandleError`, porque el componente muestra su propio mensaje localizado: el listado ofrece reintentar y la edición conserva lo ingresado si el servidor rechaza los datos.
+- Consumir y eliminar usan el manejo predeterminado de ABP.
+- Un ítem ajeno o inexistente responde **404** en actualizar, consumir y eliminar (mismo criterio en las tres operaciones).
+
+### Cómo probarla
+
+1. Levantar el DbMigrator, el Host y Angular como se indica arriba.
+2. Entrar a `http://localhost:4200` e iniciar sesión.
+3. Abrir "Mi despensa" desde el menú.
+
+### Regenerar los proxies
+
+Con el Host corriendo, desde la carpeta `angular`:
+
+    abp generate-proxy -t ng -u https://localhost:44369
+
+### Pruebas
+
+Desde la carpeta `angular`:
+
+    yarn test
+
+Desde la raíz del repo, para las pruebas del BackEnd:
+
+    dotnet test
