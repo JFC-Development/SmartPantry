@@ -48,3 +48,36 @@ dotnet run
 Push-Location .\angular
 yarn install
 yarn start
+
+## Pantalla "Mi despensa" (TP10)
+
+Pantalla Angular (RF-11, con RF-09 para datos faltantes) que lista los ítems de despensa del usuario logueado y permite editarlos, marcarlos como consumidos y eliminarlos.
+
+- **Ruta del componente:** `angular/src/app/pantry`
+- **Acceso a la API:** proxies generados por ABP (`angular/src/app/proxy/despensa`), no hay llamadas HTTP escritas a mano.
+- **Edición:** formulario reactivo con validación de cantidad (no negativa), unidad (máx. 20 caracteres) y fecha de vencimiento.
+- **Eliminar:** pide confirmación antes de llamar al servidor.
+- **Localización:** textos en español e inglés mediante claves `::Pantry:...`.
+- **Seguridad:** el BackEnd solo permite operar sobre ítems propios; un ítem ajeno responde 404.
+
+### Cómo probarla
+
+1. Levantar el DbMigrator, el Host y Angular como se indica arriba.
+2. Entrar a `http://localhost:4200` e iniciar sesión.
+3. Abrir "Mi despensa" desde el menú.
+
+### Regenerar los proxies
+
+Con el Host corriendo, desde la carpeta `angular`:
+
+    abp generate-proxy -t ng -u https://localhost:44369
+
+### Pruebas
+
+Desde la carpeta `angular`:
+
+    yarn test
+
+Desde la raíz del repo, para las pruebas del BackEnd:
+
+    dotnet test
