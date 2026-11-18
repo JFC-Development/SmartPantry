@@ -60,6 +60,24 @@ Pantalla Angular (RF-11, con RF-09 para datos faltantes) que lista los ítems de
 - **Localización:** textos en español e inglés mediante claves `::Pantry:...`.
 - **Seguridad:** el BackEnd solo permite operar sobre ítems propios; un ítem ajeno responde 404.
 
+## Decisiones del TP10
+
+### Ítems consumidos
+Los ítems consumidos **se conservan como historial** y no se eliminan automáticamente (regla de negocio 6). Al marcarlos, la lista los muestra con una etiqueta que los diferencia de los que están en stock. Se decidió conservarlos, y no eliminarlos, para que el usuario pueda consultar después qué productos ya consumió y usar ese dato como base al hacer un pedido, en lugar de depender de la memoria.
+
+Un ítem consumido no vuelve a "en stock": solo puede editarse o eliminarse de forma explícita (con confirmación previa).
+
+### Uso de ListService
+El listado de despensa es paginado (`getList` recibe `skipCount` y `maxResultCount`), por eso el componente usa `ListService` para administrar la página actual y recargar la lista después de editar, consumir o eliminar.
+
+### Criterio de fechas
+La fecha de vencimiento se trata como **fecha de calendario local**, sin conversión de zona horaria: al editar se toma solo la parte `yyyy-MM-dd` y se envía como `T00:00:00`. En la lista se muestra con el formato de la configuración regional de la aplicación (`DatePipe`). Este criterio coincide con el que aplica el worker de vencimientos del TP08.
+
+### Manejo de errores
+- El listado y la edición usan `skipHandleError`, porque el componente muestra su propio mensaje localizado: el listado ofrece reintentar y la edición conserva lo ingresado si el servidor rechaza los datos.
+- Consumir y eliminar usan el manejo predeterminado de ABP.
+- Un ítem ajeno o inexistente responde **404** en actualizar, consumir y eliminar (mismo criterio en las tres operaciones).
+
 ### Cómo probarla
 
 1. Levantar el DbMigrator, el Host y Angular como se indica arriba.
